@@ -8,22 +8,29 @@ Minimalist desktop widgets for Windows that embed directly into your wallpaper. 
 ## Features
 
 - **To Do** – Simple todo list with add, check, delete. Completed items get sorted to the bottom.
-- **Gesundheit (Health Tracker)** – Monthly calendar with daily habit tracking. Days are colored from red (0% done) → orange → green (100% done). Tracks streaks.
-- **Notizen (Notes)** – Free-form scratchpad with auto-save.
-- **Wetter (Weather)** – Current weather + 3-day forecast with ASCII art. Data from [wttr.in](https://wttr.in).
+- **Health Tracker** – Monthly calendar with daily habit tracking. Days are colored from red (0% done) to green (100% done). Tracks streaks.
+- **Notes** – Free-form scratchpad with auto-save.
+- **Weather** – Current weather + 3-day forecast with ASCII art. Data from [wttr.in](https://wttr.in).
 - **Settings** – Dark/light theme toggle and transparency slider. Changes apply to all widgets in real-time.
 
 All widgets are borderless, transparent, and sit on the desktop behind all windows – always visible on your wallpaper.
 
-## Setup
+## Install
 
-### Requirements
+### Option A: Windows Installer (recommended)
 
-- Windows 10/11
-- Python 3.8+ ([python.org](https://www.python.org/downloads/))
-- No external packages needed – uses only Python standard library
+Download the latest **DesktopWidgets-Setup.exe** from [Releases](https://github.com/Dolcruz/desktop-widgets/releases) and run it. The installer will:
 
-### Run
+- Install Desktop Widgets to your system
+- Optionally create a desktop shortcut
+- Optionally set it to start automatically with Windows
+- Include a clean uninstaller
+
+No Python required. Just install and go.
+
+### Option B: Run from source
+
+Requirements: Windows 10/11, Python 3.8+ ([python.org](https://www.python.org/downloads/)). No external packages needed.
 
 ```bash
 pythonw desktop_widgets.pyw
@@ -31,12 +38,10 @@ pythonw desktop_widgets.pyw
 
 Or double-click `desktop_widgets.pyw` in Explorer.
 
-### Autostart (run on boot)
-
-Create a file in your Windows Startup folder:
+#### Autostart from source
 
 1. Press `Win + R`, type `shell:startup`, press Enter
-2. Create a new file called `DesktopWidgets.vbs` with this content:
+2. Create a file called `DesktopWidgets.vbs`:
 
 ```vbs
 Set WshShell = CreateObject("WScript.Shell")
@@ -45,6 +50,23 @@ WshShell.Run """C:\path\to\pythonw.exe"" ""C:\path\to\desktop_widgets.pyw""", 0,
 
 Replace the paths with your actual Python and script locations.
 
+## Build the Installer Yourself
+
+If you want to build from source:
+
+```bash
+pip install pyinstaller
+installer\build.bat
+```
+
+This creates `dist\DesktopWidgets.exe` (standalone, no Python needed).
+
+To also build the installer wizard, install [Inno Setup 6](https://jrsoftware.org/isdl.php) and run:
+
+```bash
+iscc installer\setup.iss
+```
+
 ## Configuration
 
 ### Weather Location
@@ -52,11 +74,10 @@ Replace the paths with your actual Python and script locations.
 Open `desktop_widgets.pyw` and change the `CITY` variable near the top:
 
 ```python
-# Weather location – set your city here (empty string = auto-detect by IP)
 CITY = "Schriesheim"
 ```
 
-You can use any city name, e.g. `"Berlin"`, `"München"`, `"New York"`. Leave empty (`""`) to auto-detect your location by IP address.
+You can use any city name, e.g. `"Berlin"`, `"New York"`. Leave empty (`""`) to auto-detect by IP.
 
 ### Default Habits
 
@@ -79,7 +100,7 @@ Click the theme toggle in the Settings widget to switch between dark and light m
 
 ## Data Files
 
-All data is stored as simple files next to the script:
+When running from source, data is stored next to the script. When running as an installed `.exe`, data is stored in `%APPDATA%\DesktopWidgets\`.
 
 | File | Content |
 |------|---------|

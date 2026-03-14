@@ -25,11 +25,19 @@ from datetime import datetime, date, timedelta
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Data files (created automatically next to this script)
-SETTINGS_FILE = os.path.join(SCRIPT_DIR, "widget_settings.json")
-TODOS_FILE = os.path.join(SCRIPT_DIR, "todos.json")
-HEALTH_FILE = os.path.join(SCRIPT_DIR, "health_data.json")
-NOTES_FILE = os.path.join(SCRIPT_DIR, "notes.txt")
+# Data directory – uses %APPDATA%/DesktopWidgets when running as .exe,
+# otherwise stores data next to the script (for development).
+if getattr(sys, 'frozen', False):
+    DATA_DIR = os.path.join(os.environ.get("APPDATA", SCRIPT_DIR), "DesktopWidgets")
+else:
+    DATA_DIR = SCRIPT_DIR
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# Data files
+SETTINGS_FILE = os.path.join(DATA_DIR, "widget_settings.json")
+TODOS_FILE = os.path.join(DATA_DIR, "todos.json")
+HEALTH_FILE = os.path.join(DATA_DIR, "health_data.json")
+NOTES_FILE = os.path.join(DATA_DIR, "notes.txt")
 
 # Weather location – set your city here (empty string = auto-detect by IP)
 CITY = "Schriesheim"
