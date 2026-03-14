@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+
+# User data (don't track personal todos/notes/settings)
+todos.json
+health_data.json
+notes.txt
+widget_settings.json
