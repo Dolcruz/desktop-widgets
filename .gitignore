@@ -6,6 +6,7 @@ todos.json
 health_data.json
 notes.txt
 widget_settings.json
+todo_history.txt
 
 # Build artifacts
 build/

@@ -7,7 +7,7 @@ Minimalist desktop widgets for Windows that embed directly into your wallpaper. 
 
 ## Features
 
-- **To Do** – Simple todo list with add, check, delete. Completed items get sorted to the bottom.
+- **To Do** – Simple todo list with add, check, delete. New tasks appear at the top, completed items stay at the bottom, and every change is archived in a text history file.
 - **Health Tracker** – Monthly calendar with daily habit tracking. Days are colored from red (0% done) to green (100% done). Tracks streaks.
 - **Notes** – Free-form scratchpad with auto-save.
 - **Weather** – Current weather + 3-day forecast with ASCII art. Data from [wttr.in](https://wttr.in).
@@ -105,6 +105,7 @@ When running from source, data is stored next to the script. When running as an 
 | File | Content |
 |------|---------|
 | `todos.json` | Your todo items |
+| `todo_history.txt` | Permanent todo history with timestamps for adds, completions, reopenings, and deletions |
 | `health_data.json` | Habits and daily tracking data |
 | `notes.txt` | Your notes |
 | `widget_settings.json` | Theme and opacity settings |

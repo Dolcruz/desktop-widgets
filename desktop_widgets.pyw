@@ -36,6 +36,7 @@ os.makedirs(DATA_DIR, exist_ok=True)
 # Data files
 SETTINGS_FILE = os.path.join(DATA_DIR, "widget_settings.json")
 TODOS_FILE = os.path.join(DATA_DIR, "todos.json")
+TODO_HISTORY_FILE = os.path.join(DATA_DIR, "todo_history.txt")
 HEALTH_FILE = os.path.join(DATA_DIR, "health_data.json")
 NOTES_FILE = os.path.join(DATA_DIR, "notes.txt")
 
@@ -315,6 +316,7 @@ class TodoWidget(BaseWidget):
         x = screen_w - TODO_W - MARGIN_RIGHT
         super().__init__(parent, settings, "Desktop Todos", TODO_W, TODO_H, x, MARGIN_TOP)
         self.todos = self._load()
+        self._ensure_history_file()
         self._build_ui()
         self.embed()
 
@@ -322,7 +324,10 @@ class TodoWidget(BaseWidget):
         if os.path.exists(TODOS_FILE):
             try:
                 with open(TODOS_FILE, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    todos = json.load(f)
+                    if isinstance(todos, list):
+                        todos.sort(key=lambda x: x.get("done", False))
+                        return todos
             except (json.JSONDecodeError, IOError):
                 pass
         return []
@@ -330,6 +335,39 @@ class TodoWidget(BaseWidget):
     def _save(self):
         with open(TODOS_FILE, "w", encoding="utf-8") as f:
             json.dump(self.todos, f, ensure_ascii=False, indent=2)
+
+    def _ensure_history_file(self):
+        if os.path.exists(TODO_HISTORY_FILE):
+            return
+
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            with open(TODO_HISTORY_FILE, "w", encoding="utf-8") as f:
+                f.write("Desktop Todo History\n")
+                f.write("====================\n\n")
+                if self.todos:
+                    f.write(f"[{timestamp}] SNAPSHOT | Imported existing todos\n")
+                    for todo in self.todos:
+                        text = " ".join(todo.get("text", "").splitlines()).strip()
+                        if not text:
+                            continue
+                        status = "DONE" if todo.get("done", False) else "OPEN"
+                        f.write(f"[{timestamp}] SNAPSHOT | {status} | {text}\n")
+        except IOError:
+            pass
+
+    def _append_history(self, action, todo):
+        text = " ".join(todo.get("text", "").splitlines()).strip()
+        if not text:
+            return
+
+        status = "DONE" if todo.get("done", False) else "OPEN"
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        try:
+            with open(TODO_HISTORY_FILE, "a", encoding="utf-8") as f:
+                f.write(f"[{timestamp}] {action} | {status} | {text}\n")
+        except IOError:
+            pass
 
     def _build_ui(self):
         t = self.t
@@ -438,19 +476,26 @@ class TodoWidget(BaseWidget):
         text = self.entry.get().strip()
         if not text:
             return
-        self.todos.append({"text": text, "done": False})
+        todo = {"text": text, "done": False}
+        self.todos.insert(0, todo)
+        self.todos.sort(key=lambda x: x.get("done", False))
+        self._append_history("ADDED", todo)
         self._save()
         self.entry.delete(0, "end")
         self._render()
 
     def _toggle(self, idx):
-        self.todos[idx]["done"] = not self.todos[idx]["done"]
-        self.todos.sort(key=lambda x: x["done"])
+        todo = self.todos[idx]
+        todo["done"] = not todo["done"]
+        action = "COMPLETED" if todo["done"] else "REOPENED"
+        self.todos.sort(key=lambda x: x.get("done", False))
+        self._append_history(action, todo)
         self._save()
         self._render()
 
     def _delete(self, idx):
-        self.todos.pop(idx)
+        todo = self.todos.pop(idx)
+        self._append_history("DELETED", todo)
         self._save()
         self._render()
 
